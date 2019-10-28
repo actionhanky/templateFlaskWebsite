@@ -52,8 +52,7 @@ def login():
                     next = url_for('core.index')
 
                 return redirect(next)
-        flash('Log in failed.')
-    flash('Invalid input.')
+        flash('Try again!')
     return render_template('login.html', form=form)
 
 @users.route("/logout")
