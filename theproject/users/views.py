@@ -53,11 +53,8 @@ def login():
 
                 return redirect(next)
         flash('Log in failed.')
-
+    flash('Invalid input.')
     return render_template('login.html', form=form)
-
-
-
 
 @users.route("/logout")
 def logout():
