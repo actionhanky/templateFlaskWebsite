@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from theproject import db
 from werkzeug.security import generate_password_hash,check_password_hash
-from theproject.models import User, BlogPost
+from theproject.models import User
 from theproject.users.forms import RegistrationForm, LoginForm, UpdateUserForm
 from theproject.users.picture_handler import add_profile_pic
 
@@ -35,23 +35,25 @@ def login():
         # Check that the user was supplied and the password is right
         # The verify_password method comes from the User object
         # https://stackoverflow.com/questions/2209755/python-operation-vs-is-not
+        if user is not None:
+            if user.check_password(form.password.data):
+                #Log in the user
 
-        if user.check_password(form.password.data) and user is not None:
-            #Log in the user
+                login_user(user)
+                flash('Logged in successfully.')
 
-            login_user(user)
-            flash('Logged in successfully.')
+                # If a user was trying to visit a page that requires a login
+                # flask saves that URL as 'next'.
+                next = request.args.get('next')
 
-            # If a user was trying to visit a page that requires a login
-            # flask saves that URL as 'next'.
-            next = request.args.get('next')
+                # So let's now check if that next exists, otherwise we'll go to
+                # the welcome page.
+                if next == None or not next[0]=='/':
+                    next = url_for('core.index')
 
-            # So let's now check if that next exists, otherwise we'll go to
-            # the welcome page.
-            if next == None or not next[0]=='/':
-                next = url_for('core.index')
+                return redirect(next)
+        flash('Log in failed.')
 
-            return redirect(next)
     return render_template('login.html', form=form)
 
 
@@ -94,5 +96,4 @@ def account():
 def user_posts(username):
     page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    blog_posts = BlogPost.query.filter_by(author=user).order_by(BlogPost.date.desc()).paginate(page=page, per_page=5)
-    return render_template('user_blog_posts.html', blog_posts=blog_posts, user=user)
+    return render_template('user_page',user=user)

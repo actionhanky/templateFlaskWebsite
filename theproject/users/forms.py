@@ -9,9 +9,6 @@ from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from theproject.models import User
 
-
-
-
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
