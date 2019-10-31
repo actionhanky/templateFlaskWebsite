@@ -92,4 +92,16 @@ def account():
 def user_posts(username):
     page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user_page',user=user)
+    return render_template('user_page.html',user=user)
+
+# TODO: Fix delete method!
+@users.route("/<username>/delete", methods=['POST'])
+@login_required
+def delete_user(username):
+    user = User.query.get_or_404(username)
+    if user.username != current_user.username:
+        abort(403)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User has been deleted')
+    return redirect(url_for('core.index'))
